@@ -8,10 +8,11 @@ console.info('Instantiating and configuring the Sequelize object instance...');
 
 const options = {
   dialect: 'sqlite',
-  storage: 'movies.db',
+  storage: 'users.db',
+  storage: 'courses.db',
   define: {
     // This option removes the `createdAt` and `updatedAt` columns from the tables
-    // that Sequelize generates from our models. These columns are often useful
+    // that Sequelize generates from our users. These columns are often useful
     // with production apps, so we'd typically leave them enabled, but for our
     // purposes let's keep things as simple as possible.
     timestamps: false,
@@ -20,27 +21,27 @@ const options = {
 
 const sequelize = new Sequelize(options);
 
-const models = {};
+const users = {};
 
-// Import all of the models.
+// Import all of the users.
 fs
-  .readdirSync(path.join(__dirname, 'models'))
+  .readdirSync(path.join(__dirname, 'users'))
   .forEach((file) => {
     console.info(`Importing database model from file: ${file}`);
-    const model = sequelize.import(path.join(__dirname, 'models', file));
-    models[model.name] = model;
+    const model = sequelize.import(path.join(__dirname, 'users', file));
+    users[model.name] = model;
   });
 
 // If available, call method to create associations.
-Object.keys(models).forEach((modelName) => {
-  if (models[modelName].associate) {
-    console.info(`Configuring the associations for the ${modelName} model...`);
-    models[modelName].associate(models);
+Object.keys(users).forEach((userName) => {
+  if (users[userName].associate) {
+    console.info(`Configuring the associations for the ${userName} model...`);
+    users[userName].associate(users);
   }
 });
 
 module.exports = {
   sequelize,
   Sequelize,
-  models,
+  users,
 };
