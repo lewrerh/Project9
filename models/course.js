@@ -2,8 +2,8 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize) => {
-  class Course extends Sequelize.Courses {}
-  Courses.init({
+  class Course extends Sequelize.Course {}
+  Course.init({
     id: {
       types: Sequelize.INTEGER,
       primaryKey: true,
@@ -33,18 +33,18 @@ module.exports = (sequelize) => {
  
   { sequelize });
 
-  Courses.associate = (models) => {
-    Courses.hasMany(models.User);              // TODO Add associations.
+  Course.associate = (models) => {
+    Course.belongsTo(models.User);              // TODO Add associations.
     
   };
 
-  return Courses;
+  return Course;
 };
 
 
 // 'use strict';
 // module.exports = (sequelize, Datatypes) => {
-//   const Courses = sequelize.define('Courses', {
+//   const Course = sequelize.define('Course', {
 //     id: Datatypes.INTEGER,
 //     userId:Datatypes.STRING,
 //     title: Datatypes.STRING,
@@ -52,8 +52,8 @@ module.exports = (sequelize) => {
 //     estimatedTime: Datatypes.STRING,
 //     materialsNeeded: Datatypes.STRING
 //   }, {});
-//   Courses.associate = function(models) {
+//   Course.associate = function(models) {
 //     // associations can be defined here
 //   };
-//   return Courses;
+//   return Course;
 // };

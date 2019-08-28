@@ -5,15 +5,12 @@ const express = require('express');
 const morgan = require('morgan');
 const routes = require('./routes');  //Router method allowing everythin to /api w/o listing on every route
 
-const app = express();
+const app = express();      // create the Express app
 app.use(express.json());
 app.use('/api', routes);  //When request starts with /api, use routes inside routes.js file
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
-
-// create the Express app
-//const app = express();
 
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));

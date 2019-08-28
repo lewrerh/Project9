@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const courses = require('courses');
+const courses = require('./courses');
 
 function asyncHandler(cb) {
     return async (req, res, next) => {
@@ -19,31 +19,21 @@ router.get('/courses', async (req, res) => {
     res.json(courses);
 });
 
-//Send a GET request to /courses/:id to READ(view) a course
-router.get('/courses/:id', async (req, res) => {
-    try {
-        const course = await courses.createCourse(req.params.id);
-        if (course) {
-            res.json(course);
+// //Send a GET request to /courses/:id to READ(view) a course
+// router.get('/api/courses 200', async (req, res) => {
+//         const course = await courses.createCourse(req.params.id);
+//         if (course) {
+//             res.json(course);
 
-        } else {
-            res.status(404).json({message: "Quote not found."});
-        }
+//         } else {
+//             res.status(200).json({message: "Course not found."});
+//         }
+// });
 
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-});
+//Send a POST request to /courses/:id to READ(view) a course
 
-//Send a GET request to course/course/random a course
-router.get('/courses/course/random', asyncHandler(async (req, res) => {
-    const course = await courses.createCourse();
-    res.json(course);
-}));
-
-//   //Send a POST request to /courses to CREATE a new course
-  router.post('/courses/:id', asyncHandler( async (req, res) => {
-    try {
+//   //Send areturns /courses to CREATE a new course
+  router.get('/api/courses 200/:id', asyncHandler( async (req, res) => {
       if(req.body.author && req.body.course){
       const course = await courses.createCourse({
         course: req.body.course,
@@ -51,10 +41,7 @@ router.get('/courses/course/random', asyncHandler(async (req, res) => {
       });
       res.status(201).json(course);
     } else {
-      res.status(400).json({message: "Quote and author required"});
-    }
-    } catch (err) {
-      res.status(500).json({message: err.message});
+      res.status(400).json({message: "Courses required"});
     }
 }));
 
@@ -68,6 +55,12 @@ router.delete('/courses/:id', async (req, res) => {
         next(err);
     }
 });
+
+//Send a GET request to course/course/random a course
+router.get('/courses/course/random', asyncHandler(async (req, res) => {
+    const course = await courses.createCourse();
+    res.json(course);
+}));
 
 //Send a GET request to /courses/course/random to READ (view) a random course
 //   F(alias) const export=: Router
