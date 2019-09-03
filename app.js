@@ -8,11 +8,10 @@ const routes = require('./routes'); //Router method allowing everythin to /api w
 const courseRoutes = require("./routes/courses");
 const userRoutes = require("./routes/users");
 //app.use('/api', routes); //When request starts with /api, use routes inside routes.js file
-const auth = require('basic-auth');
 const bcryptjs = require('bcryptjs');
 
 // variable to enable global error logging
-//const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
+const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 const app = express(); // create the Express app
 app.use(express.json()); // Setup request body JSON parsing.
 app.use(morgan('dev')); // Setup morgan which gives us HTTP request logging.
@@ -22,12 +21,17 @@ app.use(routes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
 
+// setup morgan which gives us http request logging
+app.use(morgan('dev'));
+
 // TODO setup your api routes here
 //Send a GET request to read a list of requests
 //Send a GET request to READ(view) a quote
 //Send a POST request to CREATE a new quote
 //Send a PUT request to UPDATE (edit) a quote
 //Send a DELETE reuest to DELETE a quote
+
+// const currentUserId = currentUser[0].dataValues.id;
 
 // send 404 if no other route matched
 app.use((req, res) => {
@@ -44,7 +48,7 @@ app.use((err, req, res, next) => {
 
   res.status(err.status || 500).json({
     message: err.message,
-    error: {},
+    error: process.env.NODE_ENV === 'production' ? {} : err,
   });
 });
 
