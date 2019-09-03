@@ -35,6 +35,7 @@ console.log(user);
     res.json({
         name: user.dataValues.firstName + " " + user.dataValues.lastName,
          username: user.dataValues.emailAddress,
+         
      });
  });
 
@@ -45,7 +46,7 @@ router.post('/', [
         checkNull: true,
         checkFalsy: true
     })
-    .withMessage('Please provide a value for "first name"'),
+    .withMessage('Please provide a value for "firstName"'),
     check('lastName')
     .exists({
         checkNull: true,
@@ -57,13 +58,13 @@ router.post('/', [
         checkNull: true,
         checkFalsy: true
     })
-    .withMessage('Please provide a value for "email address"'),
-    check('password1')
+    .withMessage('Please provide a value for "emailAddress"'),
+    check('password')
     .exists({
         checkNull: true,
         checkFalsy: true
     })
-    .withMessage('Please provide a value for "password1"'),
+    .withMessage('Please provide a value for "password"'),
 ], async(req, res) => {
     // Attempt to get the validation result from the Request object.
     const errors = validationResult(req);
@@ -81,7 +82,7 @@ router.post('/', [
 
     // Set the firstName, lastName.
     const firstName = req.body.firstName;
-    const lasttName = req.body.lastName;
+    const lastName = req.body.lastName;
     const emailAddress = req.body.emailAddress;
     const password = bcryptjs.hashSync(req.body.password);
 

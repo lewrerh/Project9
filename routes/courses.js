@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
+const authenticateUser = require("../authenticationUser");
 const {Course} = require("../models");
+const auth = require('basic-auth');
 //const { check, validationResult } = require('express-validator/check');
 
 function asyncHandler(cb) {
@@ -13,6 +14,10 @@ function asyncHandler(cb) {
         }
     }
 }
+// router.get('/courses',async ( req, res ) => {
+//     const allCourses = await Course.findAll(options);
+//     res.status(200).json(allCourses);
+// });
 
 // const courses = await Course.findAll();
 //     res.status = 200;
@@ -29,18 +34,47 @@ router.get('/', async (req, res) => {
         }).catch(error => res.join({message: err.message}));
 });
 
-//   //Send returns /courses to CREATE a new course
-//   router.get('/:id', asyncHandler( async (req, res) => {
-//       if(req.body.author && req.body.course){
-//       const course = await courses.createCourse({
-//         course: req.body.course,
-//         quthor: req.body.author
-//       });
-//       res.status(200).json(course);
-//     } else {
-//       res.status(400).json({message: "Courses required"});
-//     }
-// }));
+//Set POST route creating a course, sets the location header to "/", returns no content
+router.post('/', authenticateUser, async ( req, res, next ) => {
+    const { title, description, estimatedTime, materialsNeeded } = req.body;
+    const userId = req.currentUser.id
+    
+    try{
+
+
+        await Course.create({
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded,
+            userId
+        });
+
+
+        res.location(`${req.originalUrl}/${req.currentUser.id}`);
+        res.status(201);
+        res.end();
+} catch (err) {
+    err.message = err.errors.map(val => val.message);
+    err.status = 400;
+
+    next(err);
+
+    }
+ });
+
+  //Set a PUT request to /courses/:id to UPDATE a course
+  router.put('/courses:id', asyncHandler( async (req, res) => {
+      if(req.body.author && req.body.course){
+      const course = await courses.createCourse({
+        course: req.body.course,
+        quthor: req.body.author
+      });
+      res.status(204).json(course);
+    } else {
+      res.status(400).json({message: "Courses required"});
+    }
+}));
 
 //Send a DELETE reuest to DELETE a course
 router.delete('/:id', async (req, res) => {
@@ -66,12 +100,6 @@ router.delete('/:id', async (req, res) => {
 //   ]
 // },
 // res.status(200).json(user)});
-
-//Send a GET request to course/course/random a course
-// router.get('/course/random', asyncHandler(async (req, res) => {
-//     const course = await courses.createCourse();
-//     res.json(course);
-// }));
 
 //Send a GET request to /courses/course/random to READ (view) a random course
 //   F(alias) const export=: Router

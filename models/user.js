@@ -1,5 +1,6 @@
 'use strict';
 const Sequelize = require('sequelize');
+const bcryptjs = require('bcryptjs');
 
 module.exports = (sequelize) => {
   class User extends Sequelize.Model {}
@@ -32,7 +33,7 @@ module.exports = (sequelize) => {
   },
       { sequelize });
     
-      User.associate = (models) => {
+      User.associate = (models) => {   //Tells Sequelize that a user can be associated with one or more (or "many") courses.
         User.hasMany(models.Course, {
           foreignKey: 'userId',
           targetKey: 'id'
