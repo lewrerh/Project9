@@ -14,6 +14,14 @@ function asyncHandler(cb) {
         }
     }
 }
+
+// const options = {
+//     include: [{
+//         model: User,
+//         attributes: { exclude: ['password','createdAt','updatedAt'] }
+//     }],
+//     attributes: { exclude: ['createdAt','updatedAt'] }
+
 // router.get('/courses',async ( req, res ) => {
 //     const allCourses = await Course.findAll(options);
 //     res.status(200).json(allCourses);
@@ -71,7 +79,9 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
     }
  });
 
-  //Set a PUT request to /courses/:id to UPDATE a course
+  //Set a PUT request to /courses/:id to UPDATE a course  
+  //***This method includes the extra credit feature validating courses can
+  //only by edited by the actual user***
   router.put('/:id', authenticateUser, async (req, res, next) => {
 
     const { title, description, estimatedTime, materialsNeeded } = req.body;
