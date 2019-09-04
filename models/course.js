@@ -9,6 +9,15 @@ module.exports = (sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "Please provide a course title",
+        }
+      }
+    },
     userId: {
       type: Sequelize.INTEGER,  
     },

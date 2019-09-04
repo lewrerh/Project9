@@ -31,16 +31,25 @@ router.get('/', async (req, res) => {
         } else {
             res.status(404).json({message: "Sorry, try again."});
         }
-        }).catch(error => res.join({message: err.message}));
+        }).catch(err => res.join({message: err.message}));
 });
 
+//Set GET to return course incl the user for course ID
+router.get('/:id', async (req, res) => {
+    Course.findByPk(req.params.id).then(courses => {
+        if (courses) {
+            res.status(200).json(courses);
+        } else {
+            res.status(404).json({message: "Sorry, try again."});
+        }
+        }).catch(err => res.join({message: err.message}));
+});
 //Set POST route creating a course, sets the location header to "/", returns no content
 router.post('/', authenticateUser, async ( req, res, next ) => {
     const { title, description, estimatedTime, materialsNeeded } = req.body;
     const userId = req.currentUser.id
     
     try{
-
 
         await Course.create({
             title,
@@ -50,12 +59,11 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
             userId
         });
 
-
         res.location(`${req.originalUrl}/${req.currentUser.id}`);
         res.status(201);
         res.end();
 } catch (err) {
-    err.message = err.errors.map(val => val.message);
+    err.message = err.errs.map(val => val.message);
     err.status = 400;
 
     next(err);
@@ -64,23 +72,73 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
  });
 
   //Set a PUT request to /courses/:id to UPDATE a course
-  router.put('/courses:id', asyncHandler( async (req, res) => {
-      if(req.body.author && req.body.course){
-      const course = await courses.createCourse({
-        course: req.body.course,
-        quthor: req.body.author
-      });
-      res.status(204).json(course);
-    } else {
-      res.status(400).json({message: "Courses required"});
-    }
-}));
+  router.put('/:id', authenticateUser, async (req, res, next) => {
 
-//Send a DELETE reuest to DELETE a course
-router.delete('/:id', async (req, res) => {
+    const { title, description, estimatedTime, materialsNeeded } = req.body;
+    
+    const userId = req.currentUser.id
+    const err = new Error;
+
     try {
-        const course = await courses.getQuote(req.params.id);
-        await courses.delete.Quote(course);
+    
+    const course = await Course.findByPk(req.params.id);
+    
+    if (Object.keys(req.body).length === 0) {
+        err.status = 400;
+        err.message = "No empty objects";
+        throw err;
+    }
+    if (course === null) {
+    
+    err.status = 404;
+    err.message = 'Could not find the requested course';
+    
+    throw err;
+    }
+    else {
+    const actualUserId = course.toJSON().User.id;
+    
+    if (userId === actualUserId) {
+    
+        await Course.update({
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded,
+            userId
+        },
+        {
+            where: {
+                id: `${req.params.id}`,
+                userId: `{$userId}`
+            }
+        });
+        res.status(204).end();
+    } 
+    else {
+    err.status = 404;
+    err.message = 'Course userId and authenticated userId do not match. You can only update your course';
+    
+    throw err;
+    }
+    }
+    
+    } catch (err) {
+    
+    if (err.name === 'SequelizeValidationerr') {
+    err.message = err.errs.map(value => value.message);
+    err.status = 400;
+    }
+    
+    next(err);
+    }
+    });
+    
+//Send a DELETE reuest to DELETE a course
+router.delete('/:id', authenticateUser, async (req, res, next) => {
+    try {
+        const course = await Course.findByPk(req.params.id);
+        await course.destroy(course);
         res.status(204).end();
     } catch (err) {
         next(err);

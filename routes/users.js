@@ -65,7 +65,7 @@ router.post('/', [
         checkFalsy: true
     })
     .withMessage('Please provide a value for "password"'),
-], async(req, res) => {
+], async(req, res, next) => {
     // Attempt to get the validation result from the Request object.
     const errors = validationResult(req);
 
@@ -87,6 +87,7 @@ router.post('/', [
     const password = bcryptjs.hashSync(req.body.password);
 
     // Add the user to the database.
+    try {
     await User.create({
       firstName,
       lastName,
@@ -97,6 +98,12 @@ router.post('/', [
 
     // Set the status to 201 Created and end the response.
     return res.location('/').status(201).end();
+} catch (error) {
+    error.message = error.errors.map(value => value.message);
+    error.status = 400;
+
+    next(error);
+}
 });
 
 module.exports = router;

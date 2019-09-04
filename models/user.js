@@ -41,6 +41,19 @@ module.exports = (sequelize) => {
       };
       return User;
     };
+    // const user = await User.findAll({
+//   where: {
+//     id: currentUserId
+//   },
+//   attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+//   include: [
+//     {
+//       model: Course,
+//       as: 'student',
+//     },
+//   ]
+// },
+// res.status(200).json(user)});
 
 
 // 'use strict';
