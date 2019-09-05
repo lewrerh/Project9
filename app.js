@@ -9,7 +9,7 @@ const courseRoutes = require("./routes/courses");
 const userRoutes = require("./routes/users");
 //app.use('/api', routes); //When request starts with /api, use routes inside routes.js file
 const bcryptjs = require('bcryptjs');
-
+const Sequelize = require ('sequelize');
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 const app = express(); // create the Express app
@@ -24,13 +24,21 @@ app.use('/api/users', userRoutes);
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// TODO setup your api routes here
-//Send a GET request to read a list of requests
-//Send a GET request to READ(view) a quote
-//Send a POST request to CREATE a new quote
-//Send a PUT request to UPDATE (edit) a quote
-//Send a DELETE reuest to DELETE a quote
+//Test authentication to Database
+const sequelize = new Sequelize ({
+  dialect: 'sqlite',
+  storage: './fsjstd-restapi.db'
+});
 
+sequelize.authenticate()
+  .then(() => {
+    console.log('Database connection established');   
+  }).catch(err => {
+    console.log('Could not connect to the database' + err);
+  });
+  
+
+  
 // const currentUserId = currentUser[0].dataValues.id;
 
 // send 404 if no other route matched

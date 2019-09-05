@@ -28,13 +28,13 @@ const authenticateUser = async(req, res, next) => {
                 .compareSync(credentials.pass, user.password);
             // If the passwords match...
             if (authenticated) {
-                console.log(`Authentication successful for username: ${user.username}`);
+                console.log(`Authentication successful for username: ${user.emailAddress}`);
                 // Then store the retrieved user object on the request object
                 // so any middleware functions that follow this middleware function
                 // will have access to the user's information.
                 req.currentUser = user;
             } else {
-                message = `Authentication failure for username: ${user.username}`;
+                message = `Authentication failure for username: ${user.emailAddress}`;
             }
         } else {
             message = `User not found for username: ${credentials.name}`;

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authenticateUser = require("../authenticationUser");
 const {Course} = require("../models");
+const {User} = require("../models");
 const auth = require('basic-auth');
 //const { check, validationResult } = require('express-validator/check');
 
@@ -22,15 +23,6 @@ function asyncHandler(cb) {
 //     }],
 //     attributes: { exclude: ['createdAt','updatedAt'] }
 
-// router.get('/courses',async ( req, res ) => {
-//     const allCourses = await Course.findAll(options);
-//     res.status(200).json(allCourses);
-// });
-
-// const courses = await Course.findAll();
-//     res.status = 200;
-//     res.json(courses);
-//Add all routes here except listening
 //Send a GET request to read a list of requests
 router.get('/', async (req, res) => {
     Course.findAll().then(courses => {
@@ -48,7 +40,7 @@ router.get('/:id', async (req, res) => {
         if (courses) {
             res.status(200).json(courses);
         } else {
-            res.status(404).json({message: "Sorry, try again."});
+            res.status(404).json({message: "Sorry, course not found try again."});
         }
         }).catch(err => res.join({message: err.message}));
 });
@@ -106,7 +98,7 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
     throw err;
     }
     else {
-    const actualUserId = course.toJSON().User.id;
+    const actualUserId = course.toJSON().userId;
     
     if (userId === actualUserId) {
     
@@ -120,7 +112,7 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
         {
             where: {
                 id: `${req.params.id}`,
-                userId: `{$userId}`
+                userId: `${userId}`
             }
         });
         res.status(204).end();
@@ -147,13 +139,35 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
 //Send a DELETE reuest to DELETE a course
 router.delete('/:id', authenticateUser, async (req, res, next) => {
     try {
+        const userId = req.currentUser.id
+        const err = new Error;
+
         const course = await Course.findByPk(req.params.id);
-        await course.destroy(course);
-        res.status(204).end();
+
+        if (course === null) {
+            err.status = 404;
+            err.message = "Course was not found";
+            throw error;
+        } else {
+            const actualUserId = course.toJSON().userId;
+
+            if (userId === actualUserId) {
+
+                await course.destroy(course);
+                res.status(204).end();
+            }
+            else {
+                err.status = 403;
+                err.message = 'Course userId and authenticated userId do not match. You can only update your course';
+                throw err;
+            }
+       }
     } catch (err) {
         next(err);
+
     }
 });
+        
 
 // const user = await User.findAll({
 //   where: {
