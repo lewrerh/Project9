@@ -4,7 +4,8 @@ const authenticateUser = require("../authenticationUser");
 const {Course} = require("../models");
 const {User} = require("../models");
 const auth = require('basic-auth');
-//const { check, validationResult } = require('express-validator/check');
+const { check } = require('express-validator');
+const { validationResult } = require('express-validator');
 
 function asyncHandler(cb) {
     return async (req, res, next) => {
@@ -16,34 +17,40 @@ function asyncHandler(cb) {
     }
 }
 
-// const options = {
-//     include: [{
-//         model: User,
-//         attributes: { exclude: ['password','createdAt','updatedAt'] }
-//     }],
-//     attributes: { exclude: ['createdAt','updatedAt'] }
+const filterOut = {
+    include: [{
+        model: User,
+        attributes: { exclude: ['password','createdAt','updatedAt'] }
+    }],
+    attributes: { exclude: ['createdAt','updatedAt'] }
+
+};
 
 //Send a GET request to read a list of requests
-router.get('/', async (req, res) => {
-    Course.findAll().then(courses => {
+router.get('/', async (req, res, ) => {
+    Course.findAll(filterOut).then(courses => {
         if (courses) {
             res.status(200).json(courses);
         } else {
             res.status(404).json({message: "Sorry, try again."});
         }
-        }).catch(err => res.join({message: err.message}));
+    });
 });
 
 //Set GET to return course incl the user for course ID
-router.get('/:id', async (req, res) => {
-    Course.findByPk(req.params.id).then(courses => {
-        if (courses) {
-            res.status(200).json(courses);
-        } else {
-            res.status(404).json({message: "Sorry, course not found try again."});
-        }
-        }).catch(err => res.join({message: err.message}));
+router.get('/:id',async ( req, res, next ) => {
+    let err = {};
+    const courses = await Course.findByPk(req.params.id,filterOut);
+    if (courses == null) {
+        err.message = 'Course not found'
+        err.status = 404;
+        next(err);
+    } else {
+        res.status(200).json(courses);
+    } 
+    
 });
+
 //Set POST route creating a course, sets the location header to "/", returns no content
 router.post('/', authenticateUser, async ( req, res, next ) => {
     const { title, description, estimatedTime, materialsNeeded } = req.body;
@@ -118,7 +125,7 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
         res.status(204).end();
     } 
     else {
-    err.status = 404;
+    err.status = 403;
     err.message = 'Course userId and authenticated userId do not match. You can only update your course';
     
     throw err;
@@ -157,7 +164,7 @@ router.delete('/:id', authenticateUser, async (req, res, next) => {
                 res.status(204).end();
             }
             else {
-                err.status = 403;
+                err.status = 404;
                 err.message = 'Course userId and authenticated userId do not match. You can only update your course';
                 throw err;
             }

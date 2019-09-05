@@ -2,6 +2,15 @@
 const Sequelize = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
+// const filterOut = {
+//   this: [{
+//       model: User,
+//       attributes: { exclude: ['password','createdAt','updatedAt'] }
+//   }],
+//   attributes: { exclude: ['createdAt','updatedAt'] }
+
+// };
+
 module.exports = (sequelize) => {
   class User extends Sequelize.Model {}
   User.init({

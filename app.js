@@ -69,15 +69,3 @@ const server = app.listen(app.get('port'), () => {
 });
 
 
-//Send a POST request to /quotes to CREATE a new quote
-/*app.post('/quotes/:id', async (req, res) => {
-  try{
-    throw new Error("Oh NOOOO something went wrong!");
-    const quote = records.createQuote({
-      quote: req.body.quote,
-      quthor: req.body.author
-    });
-    res.json(quote);
-}catch(err){
-    res.json({message: err.message});
-  }*/
