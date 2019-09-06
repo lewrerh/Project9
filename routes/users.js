@@ -1,32 +1,11 @@
 const express = require('express');
-const router = express.Router(); // Construct a router instance.
+const router = express.Router(); 
 var sqlite3 = require('sqlite3');
-
 const { User } = require('../models');
 const bcryptjs = require('bcryptjs');
-
 const authenticateUser = require('../authenticationUser');
 const { check } = require('express-validator');
 const { validationResult } = require('express-validator');
-
-
-//call to the Node.js require() method in order to import the check() 
-//and validationResult() methods from the expressvalidator module
-//const { check, validationResult } = require('express-validator');
-
-//Send GET for users to read a list of requests
-//router.get('/', User, (req, res, next)  => {
-//   res.send('respond with a resource');
-//});
-// function asyncHandler(cb) {
-//     return async (req, res, next) => {
-//         try {
-//             await cb(req, res, next);
-//         } catch (err) {
-//             next(err);
-//         }
-//     }
-// }
 
 // Route that returns the current authenticated user.
 router.get('/', authenticateUser, (req, res) => {
@@ -40,6 +19,7 @@ router.get('/', authenticateUser, (req, res) => {
 });
 
 // // Route that creates a new user.
+// **Includes email valid & already existing features for extra credit
 router.post('/', [
     check('firstName')
         .exists({
@@ -64,7 +44,7 @@ router.post('/', [
         .withMessage('Please provide a valid "email address"')
         .custom(async (val, { req }) => {
             const emailAddressExists = await User.findAll({ where: { emailAddress: val } });
-
+//Extra credit-feature email already exist
             if (emailAddressExists.length !== 0) {
                 throw new Error('Your selected email address already exists');
             }
@@ -93,7 +73,7 @@ router.post('/', [
         });
     }
 
-    // Set the firstName, lastName.
+    // Set the firstName, lastName & email address.
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const emailAddress = req.body.emailAddress;
@@ -120,12 +100,4 @@ router.post('/', [
 });
 
 module.exports = router;
-
-// const {
-//     check,
-//     validationResult
-// } = require('express-validator/check');
-
-
-// var Users = require("./models").User;
 

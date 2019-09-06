@@ -16,6 +16,7 @@ function asyncHandler(cb) {
     }
 }
 //Filter out properties for the router get request for User and Course(password & creatAt's)
+//**Extra credit **
 const filterOut = {
     include: [{
         model: User,
@@ -178,22 +179,4 @@ router.delete('/:id', authenticateUser, async (req, res, next) => {
     }
 });
         
-
-// const user = await User.findAll({
-//   where: {
-//     id: currentUserId
-//   },
-//   attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-//   include: [
-//     {
-//       model: Course,
-//       as: 'student',
-//     },
-//   ]
-// },
-// res.status(200).json(user)});
-
-//Send a GET request to /courses/course/random to READ (view) a random course
-//   F(alias) const export=: Router
-
 module.exports = router;
