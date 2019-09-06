@@ -2,15 +2,6 @@
 const Sequelize = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
-// const filterOut = {
-//   this: [{
-//       model: User,
-//       attributes: { exclude: ['password','createdAt','updatedAt'] }
-//   }],
-//   attributes: { exclude: ['createdAt','updatedAt'] }
-
-// };
-
 module.exports = (sequelize) => {
   class User extends Sequelize.Model {}
   User.init({
@@ -50,20 +41,6 @@ module.exports = (sequelize) => {
       };
       return User;
     };
-    // const user = await User.findAll({
-//   where: {
-//     id: currentUserId
-//   },
-//   attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-//   include: [
-//     {
-//       model: Course,
-//       as: 'student',
-//     },
-//   ]
-// },
-// res.status(200).json(user)});
-
 
 // 'use strict';
 // module.exports = (sequelize, DataTypes) => {
