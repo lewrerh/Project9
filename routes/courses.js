@@ -4,8 +4,7 @@ const authenticateUser = require("../authenticationUser");
 const {Course} = require("../models");
 const {User} = require("../models");
 const auth = require('basic-auth');
-const { check } = require('express-validator');
-const { validationResult } = require('express-validator');
+
 
 function asyncHandler(cb) {
     return async (req, res, next) => {
@@ -16,7 +15,7 @@ function asyncHandler(cb) {
         }
     }
 }
-
+//Filter out properties for the router get request for User and Course(password & creatAt's)
 const filterOut = {
     include: [{
         model: User,
@@ -26,7 +25,7 @@ const filterOut = {
 
 };
 
-//Send a GET request to read a list of requests
+//Send a GET request to return a list of courses
 router.get('/', async (req, res, ) => {
     Course.findAll(filterOut).then(courses => {
         if (courses) {
@@ -70,13 +69,17 @@ router.post('/', authenticateUser, async ( req, res, next ) => {
         res.status(201);
         res.end();
 } catch (err) {
-    err.message = err.errs.map(val => val.message);
-    err.status = 400;
+
+    if(err.name === 'SequelizeValidationError'){
+        err.message = err.errors.map(val => val.message);    
+        err.status = 400;
+    }
 
     next(err);
-
     }
- });
+});
+
+ 
 
   //Set a PUT request to /courses/:id to UPDATE a course  
   //***This method includes the extra credit feature validating courses can
@@ -154,7 +157,7 @@ router.delete('/:id', authenticateUser, async (req, res, next) => {
         if (course === null) {
             err.status = 404;
             err.message = "Course was not found";
-            throw error;
+            throw err;
         } else {
             const actualUserId = course.toJSON().userId;
 
@@ -164,7 +167,7 @@ router.delete('/:id', authenticateUser, async (req, res, next) => {
                 res.status(204).end();
             }
             else {
-                err.status = 404;
+                err.status = 403;
                 err.message = 'Course userId and authenticated userId do not match. You can only update your course';
                 throw err;
             }

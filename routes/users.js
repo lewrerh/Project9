@@ -14,10 +14,10 @@ const { validationResult } = require('express-validator');
 //and validationResult() methods from the expressvalidator module
 //const { check, validationResult } = require('express-validator');
 
-  //Send GET for users to read a list of requests
-    //router.get('/', User, (req, res, next)  => {
-    //   res.send('respond with a resource');
-    //});
+//Send GET for users to read a list of requests
+//router.get('/', User, (req, res, next)  => {
+//   res.send('respond with a resource');
+//});
 // function asyncHandler(cb) {
 //     return async (req, res, next) => {
 //         try {
@@ -29,43 +29,56 @@ const { validationResult } = require('express-validator');
 // }
 
 // Route that returns the current authenticated user.
- router.get('/', authenticateUser, (req, res) => {
-     const user = req.currentUser;
-console.log(user);
+router.get('/', authenticateUser, (req, res) => {
+    const user = req.currentUser;
+    console.log(user);
     res.json({
         name: user.dataValues.firstName + " " + user.dataValues.lastName,
-         username: user.dataValues.emailAddress,
-         
-     });
- });
+        username: user.dataValues.emailAddress,
+
+    });
+});
 
 // // Route that creates a new user.
 router.post('/', [
     check('firstName')
-    .exists({
-        checkNull: true,
-        checkFalsy: true
-    })
-    .withMessage('Please provide a value for "firstName"'),
+        .exists({
+            checkNull: true,
+            checkFalsy: true
+        })
+        .withMessage('Please provide a value for the "first name"'),
     check('lastName')
-    .exists({
-        checkNull: true,
-        checkFalsy: true
-    })
-    .withMessage('Please provide a value for "lastName"'),
+        .exists({
+            checkNull: true,
+            checkFalsy: true
+        })
+        .withMessage('Please provide a value for the "last name"'),
     check('emailAddress')
-    .exists({
-        checkNull: true,
-        checkFalsy: true
-    })
-    .withMessage('Please provide a value for "emailAddress"'),
+        .exists({
+            checkNull: true,
+            checkFalsy: true
+        })
+        .withMessage('Please provide a value for the "email address"')
+        .if((val, { req }) => req.body.emailAddress)
+        .isEmail()
+        .withMessage('Please provide a valid "email address"')
+        .custom(async (val, { req }) => {
+            const emailAddressExists = await User.findAll({ where: { emailAddress: val } });
+
+            if (emailAddressExists.length !== 0) {
+                throw new Error('Your selected email address already exists');
+            }
+
+
+            return true;
+        }),
     check('password')
-    .exists({
-        checkNull: true,
-        checkFalsy: true
-    })
-    .withMessage('Please provide a value for "password"'),
-], async(req, res, next) => {
+        .exists({
+            checkNull: true,
+            checkFalsy: true
+        })
+        .withMessage('Please provide a value for "password"'),
+], async (req, res, next) => {
     // Attempt to get the validation result from the Request object.
     const errors = validationResult(req);
 
@@ -88,22 +101,22 @@ router.post('/', [
 
     // Add the user to the database.
     try {
-    await User.create({
-      firstName,
-      lastName,
-      emailAddress,
-      password
+        await User.create({
+            firstName,
+            lastName,
+            emailAddress,
+            password
 
-    });
+        });
 
-    // Set the status to 201 Created and end the response.
-    return res.location('/').status(201).end();
-} catch (error) {
-    error.message = error.errors.map(value => value.message);
-    error.status = 400;
+        // Set the status to 201 Created and end the response.
+        return res.location('/').status(201).end();
+    } catch (error) {
+        error.message = error.errors.map(value => value.message);
+        error.status = 400;
 
-    next(error);
-}
+        next(error);
+    }
 });
 
 module.exports = router;
